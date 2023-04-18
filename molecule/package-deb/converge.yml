@@ -1,0 +1,16 @@
+---
+
+- hosts: all
+  gather_facts: true
+  any_errors_fatal: true
+
+  roles:
+    - ansible-minio
+  vars:
+    minio_install_server_package: true
+    minio_client_release: 20230210184839
+    minio_server_datadirs:
+      - "/srv/data1"
+      - "/srv/data2"
+      - "/srv/data3"
+      - "/srv/data4"

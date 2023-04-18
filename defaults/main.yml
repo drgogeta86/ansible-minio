@@ -39,3 +39,13 @@ minio_secret_key: ""
 # Switches to enable/disable the Minio server and/or Minio client installation.
 minio_install_server: true
 minio_install_client: true
+
+
+# Packages info
+# Default deb
+
+minio_debian_package: "minio_20230210184839.0.0_amd64.deb"
+minio_redhat_package: "minio-20230210184839.0.0.x86_64.rpm"
+
+minio_install_server_package: false
+minio_install_server_binary: true

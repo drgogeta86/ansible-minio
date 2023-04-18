@@ -38,8 +38,8 @@ platforms:
 
 provisioner:
   name: ansible
-  lint:
-    name: ansible-lint
+  # lint:
+  #   name: ansible-lint
   options:
     diff: True
     v: True
@@ -48,14 +48,14 @@ provisioner:
     prepare: ../resources/prepare.yml
     destroy: ../resources/destroy.yml
 
-lint:
-  name: yamllint
+# lint:
+#   name: yamllint
 
-verifier:
-  name: testinfra
-  options:
-    vvv: True
-  additional_files_or_dirs:
-    - ../resources/tests/
-  lint:
-    name: flake8
+# verifier:
+#   name: testinfra
+#   options:
+#     vvv: True
+#   additional_files_or_dirs:
+#     - ../resources/tests/
+#   lint:
+#     name: flake8

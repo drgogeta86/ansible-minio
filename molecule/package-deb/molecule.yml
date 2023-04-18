@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: cluster
+  name: package-deb
 
 driver:
   name: docker
@@ -35,26 +35,12 @@ platforms:
   #   privileged: true
   #   volumes:
   #     - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  - name: minio-ubuntu-22.04-01
-    image: ghcr.io/drgogeta86/dockerfiles-molecule/python-molecule:22.04
-    privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  - name: minio-ubuntu-22.04-02
-    image: ghcr.io/drgogeta86/dockerfiles-molecule/python-molecule:22.04
-    privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  - name: minio-ubuntu-22.04-03
-    image: ghcr.io/drgogeta86/dockerfiles-molecule/python-molecule:22.04
-    privileged: true
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
   - name: minio-ubuntu-22.04-04
     image: ghcr.io/drgogeta86/dockerfiles-molecule/python-molecule:22.04
     privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
 provisioner:
   name: ansible
   # lint:
@@ -64,11 +50,11 @@ provisioner:
     v: True
   playbooks:
     create: ../resources/create.yml
-    prepare: ../resources/prepare.yml
     destroy: ../resources/destroy.yml
+    prepare: ../resources/prepare.yml
 
 # lint:
-#   name: "yamllint"
+#   name: yamllint
 
 # verifier:
 #   name: testinfra

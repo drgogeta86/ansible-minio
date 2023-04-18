@@ -1,0 +1,98 @@
+---
+- name: Compose the Minio server download base url
+  set_fact:
+    _minio_server_download_base_url: "https://dl.minio.io/server/minio/release/linux-{{ go_arch }}"
+
+- name: Fail when arch != amd64
+  fail:
+    msg: Package installation isn't supported outside amd64 or x86_64 ... for now!
+  when:
+    - go_arch != "amd64"
+
+- name: Compose the Minio server download url with lastest release
+  set_fact:
+    _minio_server_download_url: "{{ _minio_server_download_base_url }}/archive/minio.deb"
+  when:
+    - minio_server_release | length == 0
+    - ansible_os_family == 'Debian'
+
+- name: Compose the Minio server download url with lastest release
+  set_fact:
+    _minio_server_download_url: "{{ _minio_server_download_base_url }}/archive/minio.rpm"
+  when:
+    - minio_server_release | length == 0
+    - ansible_os_family == 'Redhat'
+
+- name: "Compose the Minio server download url with release {{ minio_server_release }}"
+  set_fact:
+    _minio_server_download_url: "{{ _minio_server_download_base_url }}/archive/minio-{{ minio_server_release }}.0.0.{{ go_arch }}.rpm"
+  when:
+    - minio_server_release | length > 0
+    - ansible_os_family == 'Debian'
+
+- name: "Compose the Minio server download url with release {{ minio_server_release }}"
+  set_fact:
+    _minio_server_download_url: "{{ _minio_server_download_base_url }}/archive/minio-{{ minio_server_release }}.0.0.x86_64.rpm"
+  when:
+    - minio_server_release | length > 0
+    - ansible_os_family == 'Redhat'
+
+# - debug: var=minio_debian_package
+
+# - debug: var=_minio_server_download_url
+
+# - name: "Get the Minio server checksum for {{ go_arch }} architecture"
+#   set_fact:
+#     _minio_server_checksum: "{{ lookup('url', _minio_server_download_url + '.sha256sum').split(' ')[0] }}"
+
+# - name: Download the Minio server
+#   get_url:
+#     url: "{{ _minio_server_download_url }}"
+#     dest: "{{ minio_server_bin }}"
+#     owner: "root"
+#     group: "root"
+#     mode: 0755
+#     checksum: "sha256:{{ _minio_server_checksum }}"
+#   register: _download_server
+#   until: _download_server is succeeded
+#   retries: 5
+#   delay: 2
+#   notify: restart minio
+
+- name: Install the nginx rpm from a remote repo
+  ansible.builtin.dnf:
+    name: "{{ _minio_server_download_url }}"
+    state: present
+  notify: restart minio
+  when:
+    - ansible_os_family == 'Redhat'
+
+- name: Install a .deb package from the internet
+  ansible.builtin.apt:
+    deb: "{{ _minio_server_download_url }}"
+  notify: restart minio
+  when:
+    - ansible_os_family == 'Debian'
+
+
+- name: Create the Minio server systemd config
+  block:
+
+  - name: Create systemd override folder 
+    file:
+      state: directory
+      path: /etc/systemd/system/minio.service.d/
+      owner: "root"
+      group: "root"
+      mode: 0755
+  - name: Create systemd override for Service User
+    template:
+      src: override.conf.j2
+      dest: "/etc/systemd/system/minio.service.d/override.conf"
+      owner: "root"
+      group: "root"
+      mode: 0755
+    when: ansible_service_mgr == "systemd"
+    notify:
+      - reload minio systemd
+      - restart minio
