@@ -1,0 +1,23 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Example assertion
+    ansible.builtin.assert:
+      that: true
+  
+  - name: Stat MinioClient binary
+    stat:
+      path: /usr/local/bin/mc
+    register: minio_client
+
+  - name: Verify if exist
+    ansible.builtin.assert:
+      that:
+        - minio_client.stat.exists
+      success_msg: Client installed
+      fail_msg: Client not installed
+      quiet: True
